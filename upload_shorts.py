@@ -39,17 +39,17 @@ def main():
     results = drive_service.files().list(q=query, fields="files(id, name)").execute()
     items = results.get('files', [])
 
-    # 'done_' မဟုတ်သော ဖိုင်များကို သီးသန့်ခွဲထုတ်ပြီး နံပါတ်စဉ်အလိုက် စီရန်
+    # 'done_' မဟုတ်သော ဖိုင်များကို သီးသန့်ခွဲထုတ်ပြီး နံပါတ်ကို ရှာဖွေခြင်း
     pending_videos = []
     for item in items:
         name = item['name']
-        # 💡 တင်ပြီးသားဖိုင်များကို ကျော်ရန် ဤနေရာတွင် 'done_' ကို ပြန်လည်စစ်ဆေးထားပါသည်
+        # 💡 တင်ပြီးသားဖိုင်များကို ကျော်ရန် 'done_' ကို စစ်ဆေးပါသည်
         if not name.startswith('done_'):
             match = re.search(r'(\d+)', name)
             file_num = int(match.group(1)) if match else float('inf')
             pending_videos.append((file_num, item))
 
-    # ဖိုင်နံပါတ်စဉ်အလိုက် အငယ်မှ အကြီးသို့ Sort စီခြင်း (1.mp4, 2.mp4, ...)
+    # 💡 ဤနေရာတွင် ဖိုင်နံပါတ်စဉ်အလိုက် အငယ်မှ အကြီးသို့ (1, 2, 3...) တိတိကျကျ စီပေးပါသည်
     pending_videos.sort(key=lambda x: x[0])
 
     if not pending_videos:
@@ -61,8 +61,8 @@ def main():
     
     # Schedule ပေးမည့် MMT အချိန်ဇယား (နာရီ၊ မိနစ်)
     schedule_slots = [
-        (23, 30),
-        (23, 30),
+        (20, 30),
+        (21, 30),
         (22, 30),  
         (23, 30),  
         (0, 30)    # 💡 ညသန်းခေါင်ကျော်အတွက် 24 အစား 0 သို့ ပြောင်းလဲထားပါသည်
@@ -104,8 +104,8 @@ def main():
         print(f"YouTube တွင် Schedule သတ်မှတ်နေသည် - အချိန်: MMT {hour}:{minute} (UTC {publish_at_iso})")
         body = {
             'snippet': {
-                'title': f"#Shorts #DanceShorts #ViralDance #TrendingDance #DanceChallenge #DanceTrends #TikTokDance",
-                'description': f"#Shorts #DanceShorts #ViralDance #TrendingDance #DanceChallenge #DanceTrends #TikTokDance #DanceCompilation #FYP #ForYou #TrendingNow #NewDanceTrend",
+                'title': f"#XsuuLin #Shorts #DanceShorts #ViralDance #TrendingDance #DanceChallenge #DanceTrends #TikTokDance",
+                'description': f"#XsuuLin #Shorts #DanceShorts #ViralDance #TrendingDance #DanceChallenge #DanceTrends #TikTokDance #DanceCompilation #FYP #ForYou #TrendingNow #NewDanceTrend",
                 'categoryId': '24' # Entertainment
             },
             'status': {
