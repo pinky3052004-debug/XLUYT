@@ -112,7 +112,8 @@ def main():
             }
         }
 
-        media = MediaFileUpload(local_filename, chunksize=-1, resumable=True, mimeType='video/mp4')
+        # အသစ် (မှန်ကန်သောပုံစံ)
+        media = MediaFileUpload(local_filename, chunksize=-1, resumable=True, mimetype='video/mp4')
         upload_request = youtube_service.videos().insert(
             part="snippet,status",
             body=body,
