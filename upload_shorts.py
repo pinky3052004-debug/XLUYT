@@ -1,7 +1,7 @@
 import os
 import io
 import re
-import json  # json library ကို ထည့်သွင်းလိုက်ပါတယ်
+import json  # JSON string များကို စိတ်ချရစွာ parse လုပ်ရန်
 from datetime import datetime, timedelta, timezone
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
@@ -10,7 +10,6 @@ from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload
 # --- Google Drive Service (သီးသန့် Scope ဖြင့် ခွဲထုတ်ထားပါသည်) ---
 def get_gdrive_service():
     DRIVE_SCOPES = ['https://www.googleapis.com/auth/drive']
-    # eval အစား json.loads ကို အသုံးပြုထားပါသည်
     creds_data = json.loads(os.environ['GDRIVE_CREDENTIALS'])
     creds = Credentials.from_authorized_user_info(creds_data, DRIVE_SCOPES)
     return build('drive', 'v3', credentials=creds)
@@ -18,7 +17,6 @@ def get_gdrive_service():
 # --- YouTube Service (သီးသန့် Scope ဖြင့် ခွဲထုတ်ထားပါသည်) ---
 def get_youtube_service():
     YOUTUBE_SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
-    # eval အစား json.loads ကို အသုံးပြုထားပါသည်
     creds_data = json.loads(os.environ['YOUTUBE_CREDENTIALS'])
     creds = Credentials.from_authorized_user_info(creds_data, YOUTUBE_SCOPES)
     return build('youtube', 'v3', credentials=creds)
@@ -45,10 +43,11 @@ def main():
     pending_videos = []
     for item in items:
         name = item['name']
-        # done_ စစ်ဆေးသည့် အပိုင်းကို ဖြုတ်ချလိုက်ပြီး နံပါတ်ကို တိုက်ရိုက်ရှာပါသည်
-        match = re.search(r'(\d+)', name)
-        file_num = int(match.group(1)) if match else float('inf')
-        pending_videos.append((file_num, item))
+        # 💡 တင်ပြီးသားဖိုင်များကို ကျော်ရန် ဤနေရာတွင် 'done_' ကို ပြန်လည်စစ်ဆေးထားပါသည်
+        if not name.startswith('done_'):
+            match = re.search(r'(\d+)', name)
+            file_num = int(match.group(1)) if match else float('inf')
+            pending_videos.append((file_num, item))
 
     # ဖိုင်နံပါတ်စဉ်အလိုက် အငယ်မှ အကြီးသို့ Sort စီခြင်း (1.mp4, 2.mp4, ...)
     pending_videos.sort(key=lambda x: x[0])
@@ -62,11 +61,11 @@ def main():
     
     # Schedule ပေးမည့် MMT အချိန်ဇယား (နာရီ၊ မိနစ်)
     schedule_slots = [
-        (23, 30),
+        (20, 30),
         (21, 30),
-        (22, 30),  # 2:30 PM
-        (23, 30),  # 4:30 PM
-        (23, 30)   # 7:30 PM
+        (22, 30),  
+        (23, 30),  
+        (0, 30)    # 💡 ညသန်းခေါင်ကျော်အတွက် 24 အစား 0 သို့ ပြောင်းလဲထားပါသည်
     ]
 
     # ယနေ့ ရက်စွဲအား MMT Timezone (UTC+6:30) ဖြင့် ရယူခြင်း
@@ -82,6 +81,10 @@ def main():
         # သက်ဆိုင်ရာ Slot အလိုက် Schedule အချိန် သတ်မှတ်ခြင်း
         hour, minute = schedule_slots[index]
         slot_time = today.replace(hour=hour, minute=minute, second=0, microsecond=0)
+        
+        # 💡 နာရီက 0 နာရီ (ညသန်းခေါင်ကျော်) ဖြစ်ပါက ရက်စွဲအား နောက်တစ်နေ့သို့ ၁ ရက် တိုးပေးပါသည်
+        if hour == 0:
+            slot_time = slot_time + timedelta(days=1)
         
         # YouTube API အတွက် MMT မှ UTC သို့ ပြောင်းလဲပြီး ISO Format String ပြုလုပ်ခြင်း
         utc_slot_time = slot_time.astimezone(timezone.utc)
@@ -112,7 +115,7 @@ def main():
             }
         }
 
-        # အသစ် (မှန်ကန်သောပုံစံ)
+        # 💡 mimeType အစား မှန်ကန်သော စာလုံးပေါင်း mimetype သို့ ပြောင်းလဲထားပါသည်
         media = MediaFileUpload(local_filename, chunksize=-1, resumable=True, mimetype='video/mp4')
         upload_request = youtube_service.videos().insert(
             part="snippet,status",
