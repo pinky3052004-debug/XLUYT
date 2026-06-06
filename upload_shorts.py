@@ -1,23 +1,26 @@
 import os
 import io
 import re
+import json  # json library ကို ထည့်သွင်းလိုက်ပါတယ်
 from datetime import datetime, timedelta, timezone
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload
 
-# API Scopes Configuration
-SCOPES = [
-    'https://www.googleapis.com/auth/drive',
-    'https://www.googleapis.com/auth/youtube.force-ssl'
-]
-
+# --- Google Drive Service (သီးသန့် Scope ဖြင့် ခွဲထုတ်ထားပါသည်) ---
 def get_gdrive_service():
-    creds = Credentials.from_authorized_user_info(eval(os.environ['GDRIVE_CREDENTIALS']), SCOPES)
+    DRIVE_SCOPES = ['https://www.googleapis.com/auth/drive']
+    # eval အစား json.loads ကို အသုံးပြုထားပါသည်
+    creds_data = json.loads(os.environ['GDRIVE_CREDENTIALS'])
+    creds = Credentials.from_authorized_user_info(creds_data, DRIVE_SCOPES)
     return build('drive', 'v3', credentials=creds)
 
+# --- YouTube Service (သီးသန့် Scope ဖြင့် ခွဲထုတ်ထားပါသည်) ---
 def get_youtube_service():
-    creds = Credentials.from_authorized_user_info(eval(os.environ['YOUTUBE_CREDENTIALS']), SCOPES)
+    YOUTUBE_SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
+    # eval အစား json.loads ကို အသုံးပြုထားပါသည်
+    creds_data = json.loads(os.environ['YOUTUBE_CREDENTIALS'])
+    creds = Credentials.from_authorized_user_info(creds_data, YOUTUBE_SCOPES)
     return build('youtube', 'v3', credentials=creds)
 
 def main():
@@ -100,7 +103,7 @@ def main():
             'snippet': {
                 'title': f"#Shorts, #DanceShorts, #ViralDance, #TrendingDance, #DanceChallenge, #DanceTrends, #TikTokDance",
                 'description': f"#Shorts, #DanceShorts, #ViralDance, #TrendingDance, #DanceChallenge, #DanceTrends, #TikTokDance, #DanceCompilation, #FYP, #ForYou, #TrendingNow, #NewDanceTrend",
-                'categoryId': '24' # Education
+                'categoryId': '24' # Entertainment
             },
             'status': {
                 'privacyStatus': 'private',  # Schedule ပေးရန် private အရင်ထားရပါမည်
