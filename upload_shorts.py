@@ -45,10 +45,10 @@ def main():
     pending_videos = []
     for item in items:
         name = item['name']
-        if not name.startswith('done_'):
-            match = re.search(r'(\d+)', name)
-            file_num = int(match.group(1)) if match else float('inf')
-            pending_videos.append((file_num, item))
+        # done_ စစ်ဆေးသည့် အပိုင်းကို ဖြုတ်ချလိုက်ပြီး နံပါတ်ကို တိုက်ရိုက်ရှာပါသည်
+        match = re.search(r'(\d+)', name)
+        file_num = int(match.group(1)) if match else float('inf')
+        pending_videos.append((file_num, item))
 
     # ဖိုင်နံပါတ်စဉ်အလိုက် အငယ်မှ အကြီးသို့ Sort စီခြင်း (1.mp4, 2.mp4, ...)
     pending_videos.sort(key=lambda x: x[0])
@@ -62,11 +62,11 @@ def main():
     
     # Schedule ပေးမည့် MMT အချိန်ဇယား (နာရီ၊ မိနစ်)
     schedule_slots = [
-        (20, 30),
+        (23, 30),
         (21, 30),
         (22, 30),  # 2:30 PM
         (23, 30),  # 4:30 PM
-        (24, 30)   # 7:30 PM
+        (23, 30)   # 7:30 PM
     ]
 
     # ယနေ့ ရက်စွဲအား MMT Timezone (UTC+6:30) ဖြင့် ရယူခြင်း
