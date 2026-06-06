@@ -59,11 +59,11 @@ def main():
     
     # Schedule ပေးမည့် MMT အချိန်ဇယား (နာရီ၊ မိနစ်)
     schedule_slots = [
-        (8, 30),
-        (11, 30),
-        (14, 30),  # 2:30 PM
-        (16, 30),  # 4:30 PM
-        (19, 30)   # 7:30 PM
+        (20, 30),
+        (21, 30),
+        (22, 30),  # 2:30 PM
+        (23, 30),  # 4:30 PM
+        (24, 30)   # 7:30 PM
     ]
 
     # ယနေ့ ရက်စွဲအား MMT Timezone (UTC+6:30) ဖြင့် ရယူခြင်း
@@ -98,9 +98,9 @@ def main():
         print(f"YouTube တွင် Schedule သတ်မှတ်နေသည် - အချိန်: MMT {hour}:{minute} (UTC {publish_at_iso})")
         body = {
             'snippet': {
-                'title': f"Episode {clean_title} #Shorts",
-                'description': f"Educational Video Episode {clean_title} #shorts",
-                'categoryId': '27' # Education
+                'title': f"#Shorts, #DanceShorts, #ViralDance, #TrendingDance, #DanceChallenge, #DanceTrends, #TikTokDance",
+                'description': f"#Shorts, #DanceShorts, #ViralDance, #TrendingDance, #DanceChallenge, #DanceTrends, #TikTokDance, #DanceCompilation, #FYP, #ForYou, #TrendingNow, #NewDanceTrend",
+                'categoryId': '24' # Education
             },
             'status': {
                 'privacyStatus': 'private',  # Schedule ပေးရန် private အရင်ထားရပါမည်
