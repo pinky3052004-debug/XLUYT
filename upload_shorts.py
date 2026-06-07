@@ -34,10 +34,11 @@ def get_or_create_uploaded_file(drive_service, folder_id):
         # ဖိုင်မရှိသေးပါက အသစ်ဆောက်ခြင်း
         file_metadata = {
             'name': 'uploaded.txt',
-            'mimeType': 'text/plain',
+            'mimeType': 'text/plain', # Google Drive API metadata ပုံစံအရ T အကြီးဖြစ်ရပါမည်
             'parents': [folder_id]
         }
-        media = MediaIoBaseUpload(io.BytesIO(b""), mimeType='text/plain', resumable=True)
+        # 💡 mimetype အား စာလုံးအသေးဖြင့် မှန်ကန်စွာ ပြင်ဆင်ထားပါသည်
+        media = MediaIoBaseUpload(io.BytesIO(b""), mimetype='text/plain', resumable=True)
         new_file = drive_service.files().create(body=file_metadata, media_body=media, fields='id').execute()
         return new_file['id']
 
@@ -55,7 +56,7 @@ def append_to_uploaded_file(drive_service, file_id, video_name, current_list):
     current_list.append(video_name)
     new_content = "\n".join(current_list) + "\n"
     
-    media = MediaIoBaseUpload(io.BytesIO(new_content.encode('utf-8')), mimeType='text/plain', resumable=True)
+    media = MediaIoBaseUpload(io.BytesIO(new_content.encode('utf-8')), mimetype='text/plain', resumable=True)
     drive_service.files().update(fileId=file_id, media_body=media).execute()
 
 # --- Main Logic ---
@@ -68,7 +69,7 @@ def main():
     drive_service = get_gdrive_service()
     youtube_service = get_youtube_service()
 
-    # 💡 uploaded.txt ဖိုင်အား ရယူခြင်း သို့မဟုတ် အသစ်ဆောက်ခြင်း
+    # uploaded.txt ဖိုင်အား ရယူခြင်း သို့မဟုတ် အသစ်ဆောက်ခြင်း
     txt_file_id = get_or_create_uploaded_file(drive_service, folder_id)
     uploaded_videos_list = get_uploaded_videos(drive_service, txt_file_id)
 
@@ -82,13 +83,13 @@ def main():
     pending_videos = []
     for item in items:
         name = item['name']
-        # 💡 ဖိုင်နာမည်ကို မပြောင်းတော့ဘဲ uploaded.txt ထဲမှာ ပါဝင်မှု ရှိ/မရှိ စစ်ဆေးပြီး ကျော်သွားပါမည်
+        # ဗီဒီယိုနာမည်အား uploaded.txt ထဲတွင် မရှိသေးမှသာ List ထဲ ထည့်သွင်းပါမည်
         if name not in uploaded_videos_list:
             match = re.search(r'(\d+)', name)
             file_num = int(match.group(1)) if match else float('inf')
             pending_videos.append((file_num, item))
 
-    # ဗီဒီယိုများကို နံပါတ်စဉ်အလိုက် အငယ်မှ အကြီးသို့ (1, 2, 3...) တိတိကျကျ စီခြင်း
+    # ဗီဒီယိုများကို နံပါတ်စဉ်အလိုက် အငယ်မှ အကြီးသို့ (1.mp4, 2.mp4...) တိတိကျကျ စီခြင်း
     pending_videos.sort(key=lambda x: x[0])
 
     if not pending_videos:
@@ -162,7 +163,7 @@ def main():
 
         print(f"Schedule လုပ်ဆောင်ချက် အောင်မြင်သည်။ Video ID: {response['id']}")
 
-        # 💡 ၄။ ဗီဒီယိုဖိုင်နာမည်ကို မပြောင်းတော့ဘဲ uploaded.txt ထဲသို့ သိမ်းဆည်းခြင်း
+        # ၄။ ဗီဒီယိုနာမည်အား uploaded.txt ထဲသို့ ထည့်သွင်းသိမ်းဆည်းခြင်း
         append_to_uploaded_file(drive_service, txt_file_id, video_name, uploaded_videos_list)
         print(f"uploaded.txt ထဲသို့ မှတ်တမ်းတင်ပြီးပါပြီ: {video_name}")
 
